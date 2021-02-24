@@ -1,0 +1,60 @@
+# Научись использовать остаток от деления для перебора массива.
+
+# При заполнении массива выбери типы и порядок юнитов, которые хочешь призвать.
+summonTypes = ["soldier","soldier","soldier","archer"]
+
+def summonTroops():
+    # Используй `%`, чтобы зациклить массив `summonTypes` на основе `len(self.built)`
+    #type = summonTypes[???]
+    #hero.say("I should summon troops!")
+    type = summonTypes[len(self.built)%len(summonTypes)]
+    if hero.costOf(type)<=hero.gold:
+        hero.summon(type)
+
+archerPositions = [{"x":36,"y":55},{"x":36,"y":17}]
+meleePos = {"x":44,"y":36}
+
+def unitContol():
+    archers = hero.findByType("archer", hero.findFriends())
+    soldiers = hero.findByType("soldier", hero.findFriends())
+    for i in range(len(archers)):
+        hero.command(archers[i], "defend", archerPositions[len(archers)%2])
+    for soldier in soldiers:
+        hero.command(soldier, "defend", meleePos)
+
+def goldCollect():
+    items = hero.findItems()
+    coins = []
+    bestCoin = None
+    topValue = 0
+    for item in items:
+        if item.type == "coin":
+            coins.append(item)
+    for coin in coins:
+        if coin.value/hero.distanceTo(coin) > topValue:
+            bestCoin = coin
+            topValue = bestCoin.value/hero.distanceTo(bestCoin)
+    hero.move(bestCoin.pos)
+
+def heroMagic(target):
+    if hero.canCast("chain-lightning", target):
+        hero.cast("chain-lightning", target)
+
+def heroCombat(enemy):
+    heroMagic(enemy)
+    hero.attack(enemy)
+
+def heroImpact():
+    enemies = hero.findEnemies()
+    for enemy in enemies:
+        if enemy and hero.distanceTo(enemy)<=30:
+            heroMagic(enemy)
+        if enemy and enemy.type == "witch" and hero.distanceTo(enemy)<=31:
+            while enemy.health>0:
+                heroCombat(enemy)
+
+while True:
+    goldCollect()  
+    summonTroops()
+    unitContol()
+    heroImpact()
